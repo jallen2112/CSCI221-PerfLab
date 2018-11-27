@@ -13,7 +13,7 @@ filter: FilterMain.cpp Filter.cpp cs1300bmp.cc
 ##
 ## Parameters for the test run
 ##
-FILTERS = gauss.filter vline.filter hline.filter emboss.filter
+FILTERS = gauss.filter vline.filter hline.filter emboss.filter ##sharpen.filter avg.filter edge.filter  
 IMAGES = boats.bmp blocks-small.bmp
 TRIALS = 1 2 3 4
 

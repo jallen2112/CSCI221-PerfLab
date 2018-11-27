@@ -14,7 +14,7 @@ using namespace std;
 // Forward declare the functions
 //
 Filter * readFilter(string filename);
-double applyFilter(Filter *filter, cs1300bmp *input, cs1300bmp *output);
+double applyFilter(Filter *filter, cs1300bmp *input, cs1300bmp *output, string filtername);
 
 int
 main(int argc, char **argv)
@@ -54,7 +54,7 @@ main(int argc, char **argv)
     int ok = cs1300bmp_readfile( (char *) inputFilename.c_str(), input);
 
     if ( ok ) {
-      double sample = applyFilter(filter, input, output);
+      double sample = applyFilter(filter, input, output, filtername);
       sum += sample;
       samples++;
       cs1300bmp_writefile((char *) outputFilename.c_str(), output);
@@ -132,7 +132,7 @@ static inline void init_perfcounters (int32_t do_reset, int32_t enable_divider)
 
 
 double
-applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
+applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string filtername)
 {
   #if defined(__arm__)
   init_perfcounters (1, 1);
@@ -159,17 +159,35 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
       for(int plane = 0; plane < 3; ++plane) {
 
 //	int t = 0;
+	/*
+  int filterXY[t][t];
+  for(int i = 0; i < t; i++)
+    for(int j = 0; j < t; j++)
+      filterXY[i][j] = filter -> get(i, j);
+      */
+
 	output -> color[plane][row][col] = 0;
+  int total = 0;
 	for (int j = 0; j < t; ++j) {
+    int COL = col + j - 1;
+    total += input -> color[plane][row-1][COL] * filter->get(0, j);
+    total += input -> color[plane][row][COL] * filter->get(1, j);
+    total += input -> color[plane][row+1][COL] * filter->get(2, j);
+//    total += input -> color[plane][row+1][COL] * filter -> get(2, j); //example of previous
+    output->color[plane][row][col] = total;
+    /*
 	  for (int i = 0; i < t; ++i) {	
 	    output -> color[plane][row][col]
-	      += (input -> color[plane][row + i - 1][col + j - 1]  //Could be problem changed to +=
-		 * filter -> get(i, j) );
+	      += (input -> color[plane][row + i - 1][COL]  //Could be problem changed to +=
+		  * filter -> get(i, j) );
 	  }
+    */
 	}
 	
+  if(filterDivisor != 1){
 	output -> color[plane][row][col] = 	
 	  output -> color[plane][row][col] / filterDivisor;
+  }
 
 	if ( output -> color[plane][row][col]  < 0 ) {
 	  output -> color[plane][row][col] = 0;
