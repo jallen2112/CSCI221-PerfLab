@@ -1,0 +1,14 @@
+scp jallen65@jaguar.csuchico.edu:320/CSCI221-PerfLab/perflab-setup/FilterMain.cpp .
+scp jallen65@jaguar.csuchico.edu:320/CSCI221-PerfLab/perflab-setup/Makefile .
+
+##Use this to get picturediff to work
+pip install Pillow
+python ../picturediff.py <image1> <image2>
+
+
+NOTES
+Use -O3 optimization (got from the book)
+++i instead of i++
+using openMP (discussed in class)
+Do function calculations outside of the loops when possible
+##fine a way to eliminate the two inner for loops (look at sizes)

@@ -3,13 +3,13 @@
 
 CXX	=g++
 CXXFLAGS= -static 
-CXXOPT = -O3 
+CXXOPT = -O3 -fopenmp 
 
 goals: judge
 	echo "Done"
 
 filter: FilterMain.cpp Filter.cpp cs1300bmp.cc
-	$(CXX) $(CXXOPT) -o filter FilterMain.cpp Filter.cpp cs1300bmp.cc -fopenmp
+	$(CXX) $(CXXFLAGS) $(CXXOPT) -o filter FilterMain.cpp Filter.cpp cs1300bmp.cc 
 ##
 ## Parameters for the test run
 ##
