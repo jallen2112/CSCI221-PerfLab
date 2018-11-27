@@ -150,8 +150,13 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string f
 
   int inputWidth = (input -> width) - 1;
   int inputHeight = (input -> height) - 1;
-  int t = filter -> getSize();
+  int t = 3;//filter -> getSize();
   int filterDivisor = filter->getDivisor();
+
+  int filterMatrix[t][t];
+  for(int i = 0; i < t; i++)
+    for(int j = 0; j < t; j++)
+      filterMatrix[i][j] = filter -> get(i, j);
 
   #pragma omp parallel for
   for(int col = 1; col < inputWidth; ++col) {
@@ -159,22 +164,15 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string f
       for(int plane = 0; plane < 3; ++plane) {
 
 //	int t = 0;
-	/*
-  int filterXY[t][t];
-  for(int i = 0; i < t; i++)
-    for(int j = 0; j < t; j++)
-      filterXY[i][j] = filter -> get(i, j);
-      */
 
-	output -> color[plane][row][col] = 0;
+//	output -> color[plane][row][col] = 0;
   int total = 0;
+  #pragma omp parallel for
 	for (int j = 0; j < t; ++j) {
     int COL = col + j - 1;
-    total += input -> color[plane][row-1][COL] * filter->get(0, j);
-    total += input -> color[plane][row][COL] * filter->get(1, j);
-    total += input -> color[plane][row+1][COL] * filter->get(2, j);
-//    total += input -> color[plane][row+1][COL] * filter -> get(2, j); //example of previous
-    output->color[plane][row][col] = total;
+    total += input -> color[plane][row-1][COL] * filterMatrix[0][j];
+    total += input -> color[plane][row][COL] * filterMatrix[1][j];
+    total += input -> color[plane][row+1][COL] * filterMatrix[2][j];
     /*
 	  for (int i = 0; i < t; ++i) {	
 	    output -> color[plane][row][col]
@@ -184,18 +182,20 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string f
     */
 	}
 	
+  output->color[plane][row][col] = total;
+
   if(filterDivisor != 1){
-	output -> color[plane][row][col] = 	
-	  output -> color[plane][row][col] / filterDivisor;
+    output -> color[plane][row][col] =
+      output -> color[plane][row][col] / filterDivisor;
   }
 
-	if ( output -> color[plane][row][col]  < 0 ) {
-	  output -> color[plane][row][col] = 0;
-	}
+  if ( output -> color[plane][row][col]  < 0 ) {
+    output -> color[plane][row][col] = 0;
+  }
 
-	if ( output -> color[plane][row][col]  > 255 ) { 
-	  output -> color[plane][row][col] = 255;
-	}
+  if ( output -> color[plane][row][col]  > 255 ) {
+    output -> color[plane][row][col] = 255;
+  }
       }
     }
   }
