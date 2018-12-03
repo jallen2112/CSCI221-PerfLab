@@ -167,12 +167,42 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string f
 
 //	output -> color[plane][row][col] = 0;
   int total = 0;
-  #pragma omp parallel for
-	for (int j = 0; j < t; ++j) {
-    int COL = col + j - 1;
-    total += input -> color[plane][row-1][COL] * filterMatrix[0][j];
-    total += input -> color[plane][row][COL] * filterMatrix[1][j];
-    total += input -> color[plane][row+1][COL] * filterMatrix[2][j];
+	//for (int j = 0; j < t; ++j) {
+   // int COL = col + j - 1;
+   /*
+  if(filtername == "emboss.filter"){
+  int COL = col - 1;
+  int a = row-1;
+  int b = row+1;
+  total = input -> color[plane][a][COL];
+  total += input -> color[plane][row][COL];
+  total += input -> color[plane][b][COL];
+  COL++;
+  total += input -> color[plane][a][COL];
+  total += input -> color[plane][row][COL];
+  total -= input -> color[plane][b][COL];
+  COL++;
+  total += input -> color[plane][a][COL] * filterMatrix[0][2];
+  total += input -> color[plane][row][COL] * filterMatrix[1][2];
+  total += input -> color[plane][b][COL] * filterMatrix[2][2];
+  }
+  */
+ // else{
+  int COL = col - 1;
+  int a = row-1;
+  int b = row+1;
+  total += input -> color[plane][a][COL] * filterMatrix[0][0];
+  total += input -> color[plane][row][COL] * filterMatrix[1][0];
+  total += input -> color[plane][b][COL] * filterMatrix[2][0];
+  COL++;
+  total += input -> color[plane][a][COL] * filterMatrix[0][1];
+  total += input -> color[plane][row][COL] * filterMatrix[1][1];
+  total += input -> color[plane][b][COL] * filterMatrix[2][1];
+  COL++;
+  total += input -> color[plane][a][COL] * filterMatrix[0][2];
+  total += input -> color[plane][row][COL] * filterMatrix[1][2];
+  total += input -> color[plane][b][COL] * filterMatrix[2][2];
+//  }
     /*
 	  for (int i = 0; i < t; ++i) {	
 	    output -> color[plane][row][col]
@@ -180,7 +210,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string f
 		  * filter -> get(i, j) );
 	  }
     */
-	}
+//	}
 	
   output->color[plane][row][col] = total;
 
@@ -193,7 +223,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string f
     output -> color[plane][row][col] = 0;
   }
 
-  if ( output -> color[plane][row][col]  > 255 ) {
+  else if ( output -> color[plane][row][col]  > 255 ) {
     output -> color[plane][row][col] = 255;
   }
       }
